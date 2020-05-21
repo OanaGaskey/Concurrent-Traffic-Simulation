@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <future>
+#include <mutex>
 #include <memory>
 #include "TrafficObject.h"
 
@@ -24,6 +25,7 @@ public:
 private:
     std::vector<std::shared_ptr<Vehicle>> _vehicles;          // list of all vehicles waiting to enter this intersection
     std::vector<std::promise<void>> _promises; // list of associated promises
+    std::mutex _mtx;
 };
 
 class Intersection : public TrafficObject
