@@ -10,26 +10,25 @@
 
 /* Implementation of class "WaitingVehicles" */
 
-// L3.1 : Safeguard all accesses to the private members _vehicles and _promises with an appropriate locking mechanism, 
-// that will not cause a deadlock situation where access to the resources is accidentally blocked.
-
 int WaitingVehicles::getSize()
 {
-  	std::lock_guard<std::mutex> lck(_mtx);
-  	int size = _vehicles.size();
-    return size;
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    return _vehicles.size();
 }
 
 void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle, std::promise<void> &&promise)
 {
-  	std::lock_guard<std::mutex> lck(_mtx);
+    std::lock_guard<std::mutex> lock(_mutex);
+
     _vehicles.push_back(vehicle);
     _promises.push_back(std::move(promise));
 }
 
 void WaitingVehicles::permitEntryToFirstInQueue()
 {
-  	std::lock_guard<std::mutex> lck(_mtx);
+    std::lock_guard<std::mutex> lock(_mutex);
+
     // get entries from the front of both queues
     auto firstPromise = _promises.begin();
     auto firstVehicle = _vehicles.begin();
@@ -73,10 +72,10 @@ std::vector<std::shared_ptr<Street>> Intersection::queryStreets(std::shared_ptr<
 // adds a new vehicle to the queue and returns once the vehicle is allowed to enter
 void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
 {
-    // L3.3 : Ensure that the text output locks the console as a shared resource. Use the mutex _mtxCout you have added to the base class TrafficObject in the previous task. Make sure that in between the two calls to std-cout at the beginning and at the end of addVehicleToQueue the lock is not held. 
-    std::unique_lock<std::mutex> lck(_mtxCout);
+    std::unique_lock<std::mutex> lck(_mtx);
     std::cout << "Intersection #" << _id << "::addVehicleToQueue: thread id = " << std::this_thread::get_id() << std::endl;
-	lck.unlock();
+    lck.unlock();
+
     // add new vehicle to the end of the waiting line
     std::promise<void> prmsVehicleAllowedToEnter;
     std::future<void> ftrVehicleAllowedToEnter = prmsVehicleAllowedToEnter.get_future();
@@ -84,9 +83,12 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
 
     // wait until the vehicle is allowed to enter
     ftrVehicleAllowedToEnter.wait();
-  	lck.lock();
+    lck.lock();
     std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID() << " is granted entry." << std::endl;
-  	lck.unlock();
+    
+    // FP.6b : use the methods TrafficLight::getCurrentPhase and TrafficLight::waitForGreen to block the execution until the traffic light turns green.
+
+    lck.unlock();
 }
 
 void Intersection::vehicleHasLeft(std::shared_ptr<Vehicle> vehicle)
@@ -106,6 +108,8 @@ void Intersection::setIsBlocked(bool isBlocked)
 // virtual function which is executed in a thread
 void Intersection::simulate() // using threads + promises/futures + exceptions
 {
+    // FP.6a : In Intersection.h, add a private member _trafficLight of type TrafficLight. At this position, start the simulation of _trafficLight.
+
     // launch vehicle queue processing in a thread
     threads.emplace_back(std::thread(&Intersection::processVehicleQueue, this));
 }
@@ -132,3 +136,16 @@ void Intersection::processVehicleQueue()
         }
     }
 }
+
+bool Intersection::trafficLightIsGreen()
+{
+   // please include this part once you have solved the final project tasks
+   /*
+   if (_trafficLight.getCurrentPhase() == TrafficLightPhase::green)
+       return true;
+   else
+       return false;
+   */
+
+  return true; // makes traffic light permanently green
+} 
