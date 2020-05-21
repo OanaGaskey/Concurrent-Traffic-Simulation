@@ -31,8 +31,12 @@ void Vehicle::simulate()
 // virtual function which is executed in a thread
 void Vehicle::drive()
 {
+    // L3.3 : Ensure that the text output locks the console as a shared resource. Use the mutex _mtxCout you have added to the base class TrafficObject in the previous task. 
+
     // print id of the current thread
+    std::unique_lock<std::mutex> lck(_mtxCout);
     std::cout << "Vehicle #" << _id << "::drive: thread id = " << std::this_thread::get_id() << std::endl;
+    lck.unlock();
 
     // initalize variables
     bool hasEnteredIntersection = false;
@@ -74,11 +78,12 @@ void Vehicle::drive()
             // check wether halting position in front of destination has been reached
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
-                // Task L2.1 : Start up a task using std::async which takes a reference to the method Intersection::addVehicleToQueue, 
-                // the object _currDestination and a shared pointer to this using the get_shared_this() function. 
-                // Then, wait for the data to be available before proceeding to slow down.
-              	std::future<void> ftr = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
-              	ftr.wait();
+                // request entry to the current intersection (using async)
+                auto ftrEntryGranted = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
+
+                // wait until entry has been granted
+                ftrEntryGranted.get();
+
                 // slow down and set intersection flag
                 _speed /= 10.0;
                 hasEnteredIntersection = true;
