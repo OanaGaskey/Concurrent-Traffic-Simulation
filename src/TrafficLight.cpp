@@ -80,6 +80,7 @@ void TrafficLight::cycleThroughPhases()
           else TrafficLightPhase::red;
           
           // send update message to queue
+          _trafficQueue.send(std::move(_currentPhase));
         }        
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }    
