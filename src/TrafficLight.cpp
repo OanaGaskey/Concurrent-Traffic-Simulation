@@ -23,12 +23,12 @@ void MessageQueue<T>::send(T &&msg)
 
 /* Implementation of class "TrafficLight" */
 
-/*
+
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
 }
-
+/*
 void TrafficLight::waitForGreen()
 {
     // FP.5b : add the implementation of the method waitForGreen, in which an infinite while-loop 
@@ -67,6 +67,10 @@ void TrafficLight::cycleThroughPhases()
         
         if(int_ms.count() > cycle_duration){
           cycle_finished = true;
+          if (_currentPhase == TrafficLightPhase::red) _currentPhase = TrafficLightPhase::green;
+          else TrafficLightPhase::red;
+          
+          // send update message to queue
         }        
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }    
