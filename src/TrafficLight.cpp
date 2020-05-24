@@ -71,14 +71,15 @@ void TrafficLight::cycleThroughPhases()
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
     
     while (true){
+      std::cout<<"entered cycle through phases!"<<std::endl;
       int cycle_duration = 4000 + rand(); //time in milliseconds, rand generates values between 0 and 2000
       auto time_start = std::chrono::high_resolution_clock::now();
       bool cycle_finished = false;
       
       while(!cycle_finished){
       	auto time_now = std::chrono::high_resolution_clock::now();
-        auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_start - time_now);
-        
+        auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_start);
+        //std::cout<<"Traffic light elapsed time = "<<int_ms.count()<<std::endl;
         if(int_ms.count() > cycle_duration){
           cycle_finished = true;
           if (_currentPhase == TrafficLightPhase::red) _currentPhase = TrafficLightPhase::green;
