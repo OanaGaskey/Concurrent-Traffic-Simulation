@@ -1,7 +1,8 @@
 #include <iostream>
 #include <random>
+#include <string>
 #include "TrafficLight.h"
-#define RAND_MAX 2000
+
 /* Implementation of class "MessageQueue" */
 
 
@@ -46,7 +47,10 @@ void TrafficLight::waitForGreen()
   
   while(true){
     msg = _trafficQueue.receive();
-    if (msg == TrafficLightPhase::green) return;
+    if (msg == TrafficLightPhase::green) {
+      std::cout<<"GREEN!"<<std::endl;
+      return;
+    }
   }  
 }
 
@@ -69,17 +73,22 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
+  	std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution(4000,6000);
     
     while (true){
-      std::cout<<"entered cycle through phases!"<<std::endl;
-      int cycle_duration = 4000 + rand(); //time in milliseconds, rand generates values between 0 and 2000
+//       std::cout<<"entered cycle through phases!"<<std::endl;
+      int cycle_duration = distribution(generator); //time in milliseconds, rand generates values between 0 and 2000
+      std::cout<<"cycle duration = "<<cycle_duration<<" ms\n";
       auto time_start = std::chrono::high_resolution_clock::now();
       bool cycle_finished = false;
       
       while(!cycle_finished){
+//         if (_currentPhase == TrafficLightPhase::red) std::cout<<"red"<<std::endl;
+//         if (_currentPhase == TrafficLightPhase::green) std::cout<<"green"<<std::endl;
+        
       	auto time_now = std::chrono::high_resolution_clock::now();
         auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_start);
-        //std::cout<<"Traffic light elapsed time = "<<int_ms.count()<<std::endl;
         if(int_ms.count() > cycle_duration){
           cycle_finished = true;
           if (_currentPhase == TrafficLightPhase::red) _currentPhase = TrafficLightPhase::green;
