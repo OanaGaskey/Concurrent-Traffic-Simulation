@@ -49,12 +49,12 @@ void TrafficLight::waitForGreen()
     if (msg == TrafficLightPhase::green) return;
   }  
 }
-/*
+
 TrafficLightPhase TrafficLight::getCurrentPhase()
 {
     return _currentPhase;
 }
-*/
+
 void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class. 
