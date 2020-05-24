@@ -77,23 +77,21 @@ void TrafficLight::cycleThroughPhases()
     std::uniform_int_distribution<int> distribution(4000,6000);
     
     while (true){
-//       std::cout<<"entered cycle through phases!"<<std::endl;
+      std::cout<<"entered cycle through phases!"<<std::endl;
       int cycle_duration = distribution(generator); //time in milliseconds, rand generates values between 0 and 2000
       std::cout<<"cycle duration = "<<cycle_duration<<" ms\n";
       auto time_start = std::chrono::high_resolution_clock::now();
       bool cycle_finished = false;
       
-      while(!cycle_finished){
-//         if (_currentPhase == TrafficLightPhase::red) std::cout<<"red"<<std::endl;
-//         if (_currentPhase == TrafficLightPhase::green) std::cout<<"green"<<std::endl;
-        
+      while(!cycle_finished){      
       	auto time_now = std::chrono::high_resolution_clock::now();
         auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_start);
+//         std::cout<<"time elapsed = "<<int_ms.count()<<" of "<< cycle_duration <<std::endl;
         if(int_ms.count() > cycle_duration){
           cycle_finished = true;
-          if (_currentPhase == TrafficLightPhase::red) _currentPhase = TrafficLightPhase::green;
-          else TrafficLightPhase::red;
           
+          if (_currentPhase == TrafficLightPhase::red) _currentPhase = TrafficLightPhase::green;
+          else _currentPhase = TrafficLightPhase::red;
           // send update message to queue
           _trafficQueue.send(std::move(_currentPhase));
         }        
