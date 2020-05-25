@@ -34,7 +34,6 @@ void MessageQueue<T>::send(T &&msg)
 TrafficLight::TrafficLight()
 {
   _currentPhase = TrafficLightPhase::red;
-  std::cout<<"constructing traffic light at address: "<<this<<std::endl;
 }
 
 void TrafficLight::waitForGreen()
