@@ -31,11 +31,10 @@ void MessageQueue<T>::send(T &&msg)
 
 
 /* Implementation of class "TrafficLight" */
-
-
 TrafficLight::TrafficLight()
 {
-    _currentPhase = TrafficLightPhase::red;
+  _currentPhase = TrafficLightPhase::red;
+  std::cout<<"constructing traffic light at address: "<<this<<std::endl;
 }
 
 void TrafficLight::waitForGreen()
@@ -48,7 +47,6 @@ void TrafficLight::waitForGreen()
   while(true){
     msg = _trafficQueue.receive();
     if (msg == TrafficLightPhase::green) {
-      std::cout<<"GREEN!"<<std::endl;
       return;
     }
   }  
@@ -73,20 +71,18 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
-  	std::default_random_engine generator;
+
+  	std::random_device rd;
+ 	std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distribution(4000,6000);
-    
     while (true){
-      std::cout<<"entered cycle through phases!"<<std::endl;
-      int cycle_duration = distribution(generator); //time in milliseconds, rand generates values between 0 and 2000
-      std::cout<<"cycle duration = "<<cycle_duration<<" ms\n";
+      int cycle_duration = distribution(rng); //time in milliseconds, rand generates values between 0 and 2000
       auto time_start = std::chrono::high_resolution_clock::now();
       bool cycle_finished = false;
       
       while(!cycle_finished){      
       	auto time_now = std::chrono::high_resolution_clock::now();
         auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_start);
-//         std::cout<<"time elapsed = "<<int_ms.count()<<" of "<< cycle_duration <<std::endl;
         if(int_ms.count() > cycle_duration){
           cycle_finished = true;
           
@@ -95,7 +91,7 @@ void TrafficLight::cycleThroughPhases()
           // send update message to queue
           _trafficQueue.send(std::move(_currentPhase));
         }        
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }    
     }
 }
